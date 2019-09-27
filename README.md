@@ -1,2 +1,2 @@
 # Tarea
-Miguel Aguilar 01
+Miguel Aguilar
