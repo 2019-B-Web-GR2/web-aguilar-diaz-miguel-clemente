@@ -1,0 +1,11 @@
+{
+  "id": 1,
+  "nombre": "lola",
+  "casado": true,
+  "hijos": null,
+  "mascota": {
+    "id": 1,
+    "nombre": "alv"
+  },
+  "algo": "algo"
+}

@@ -1,4 +1,4 @@
-import {Controller, Get, HttpCode, Post} from '@nestjs/common';
+import {Body, Controller, Headers, Get, HttpCode, Param, Post, Query} from '@nestjs/common';
 import {AppService} from './app.service';
 
 @Controller('pepito') //recibe el segmento de la url -> '/'
@@ -18,8 +18,60 @@ export class AppController {
         return 'Adios Mundo';
         //trow new Internal....Exeption('message'); //tambien sirve como el return pero para  errores
     }
+
+    @Get('bienvenida')
+    public bienvenida(
+        @Query() parametrosDeConsulta:any,
+        @Query('nombre') nombre:string,
+        @Query('casado') bandera:string,
+        @Query('numero') number:string
+    ):string{
+        console.log(parametrosDeConsulta);
+        //template strings
+        return `Mensaje ${parametrosDeConsulta.nombre} ${typeof parametrosDeConsulta}`
+    }
+
+    @Get('inscripcion-curso/:idCurso/:cedula') // /:nombreParametro
+    public inscripcionCurso(
+        @Param() parametrosDeRuta: ObjetoInscripcion,
+        @Param('idCurso') idCurso: ObjetoInscripcion,
+        @Param('cedula') cedula: ObjetoInscripcion
+    ):string{
+        console.log(parametrosDeRuta);
+        //template strings
+        return `Te inscribiste al curso ${idCurso} \n${cedula}`
+    }
+
+    @Post('almorzar') // /:nombreParametro
+    @HttpCode(200)
+    public almorzar(
+        @Body() parametrosDeCuerpo,
+        @Body('nombre') nombre:string //solo para un objeto sirve, para lo otro no
+    ):string{
+        console.log(parametrosDeCuerpo);
+        //template strings
+        return `Te inscribiste al curso ${parametrosDeCuerpo}`;
+    }
+
+    @Get('obtener-cabeceras')
+    obtenerCabeceras(
+        @Headers() cabeceras
+    ){
+        console.log(cabeceras);
+        return `${cabeceras}`;
+    }
 }
 
+interface ObjetoBienvenida {
+    nombre?:string;
+    numero?:string;
+    casado?:string;
+}
+
+interface ObjetoInscripcion {
+    idCurso: string;
+    cedula: string;
+}
 // TypeScript
 var nombre: string = "Miguel";  //no usar var
 let apellido = "Aguilar";       // variable mutable se pueden reasignar
