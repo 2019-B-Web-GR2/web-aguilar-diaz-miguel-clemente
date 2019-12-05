@@ -18,7 +18,7 @@ import {UsuarioEntity} from "./usuario/usuario.entity";
          ],
          synchronize:true
        })
-    
+
   ],
   controllers: [AppController],
   providers: [AppService],

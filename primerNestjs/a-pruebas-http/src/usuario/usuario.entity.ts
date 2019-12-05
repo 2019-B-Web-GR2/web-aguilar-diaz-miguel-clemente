@@ -1,3 +1,4 @@
+/*
 import {Entity, PrimaryGeneratedColumn} from "typeorm";
 
 @Entity('usuario_web')
@@ -9,4 +10,4 @@ export class UsuarioEntity {
         comment: 'Indentificador de la tabla usuario'
     })
     id:number;
-}
+}*/

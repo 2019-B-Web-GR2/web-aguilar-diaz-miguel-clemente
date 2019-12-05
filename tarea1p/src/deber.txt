@@ -1,0 +1,23 @@
+1)
+Realizar una calculadora mediante el protocolo HTTP
+
+
+Resta 2 numeros con un metodo
+
+Body
+POST
+HTTP CODE 201
+
+
+
+
+
+
+
+
+
+Division 2 numeros con un metodo
+
+Query - Body - Headers
+Delete
+HTTP CODE 203
