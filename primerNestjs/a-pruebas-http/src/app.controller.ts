@@ -1,3 +1,99 @@
+import {
+    BadRequestException, Body,
+    Controller,
+    Get, Headers,
+    HttpCode,
+    InternalServerErrorException, Param,
+    Post,
+    Query
+} from '@nestjs/common';
+import {AppService} from './app.service';
+
+@Controller('pepito') // segmento url -> "/"
+export class AppController {
+    constructor(private readonly appService: AppService) {
+    } // http://localhost:4000/pepito/ GET
+    @Get() // -> url "hola-mundo"
+    getHello(): string {
+        return this.appService.getHello();
+    }
+
+    // http://localhost:4000/pepito/ POST
+    @HttpCode(200)
+    @Post('esPar')
+    adiosMundo(): string {
+        const segundos = this.obtenerSegundos();
+        if (segundos % 2 === 0) {
+            return 'Adios mundo!';
+        } else {
+            throw new InternalServerErrorException(
+                'Es  impar'
+            );
+        }
+
+    }
+
+    private obtenerSegundos(): number {
+        return new Date().getSeconds();
+    }
+
+    @Get('bienvenida')
+    public bienvenida(
+        @Query() parametrosDeConsulta: ObjetoBienvenida,
+        @Query('nombre') nombreUsuario: string,
+        @Query('numero') numeroUsuario: string,
+        @Query('casado') casadoUsuario: string,
+    ): string {
+        console.log(parametrosDeConsulta);
+        console.log(typeof numeroUsuario);
+        // template strings \\ `Mensaje ${variable}`
+        return `Mensaje ${parametrosDeConsulta.nombre} Numero: ${parametrosDeConsulta.numero}`;
+    }
+
+    @Get('inscripcion-curso/:idCurso/:cedula') //  "/:nombreParametro"
+    public inscripcionCurso(
+        @Param() parametrosDeRuta: ObjetoInscripcion,
+        @Param('idCurso') idCurso: string,
+        @Param('cedula') cedula: string
+    ): string {
+        console.log(parametrosDeRuta);
+        return `Te inscribiste al curso: ${idCurso}\n ${cedula}`;
+    }
+
+    @Post('almorzar')
+    @HttpCode(200)
+    public almorzar(
+        @Body() parametrosDeCuerpo,
+        @Body('id') id: number, // Objeto :D Arreglo D:
+    ): string {
+        console.log(parametrosDeCuerpo);
+        return `Te inscribiste al curso: ${parametrosDeCuerpo}`;
+    }
+
+    @Get('obtener-cabeceras')
+    obtenerCabeceras(
+        @Headers() cabeceras,
+        @Headers('numerouno') numeroUno: string,
+    ) {
+        console.log(cabeceras);
+        return `Las cabeceras son: ${numeroUno}`;
+    }
+}
+
+interface ObjetoInscripcion {
+    idCurso: string;
+    cedula: string;
+}
+
+
+interface ObjetoBienvenida {
+    nombre?: string;
+    numero?: string;
+    casado?: string;
+}
+
+
+/*
 import {Body, Controller, Headers, Get, HttpCode, Param, Post, Query} from '@nestjs/common';
 import {AppService} from './app.service';
 
@@ -151,3 +247,4 @@ const pikachu: Pokemon = {
 };
 
 const suma = pikachu.id + (pikachu.entrenador as number);
+*/
