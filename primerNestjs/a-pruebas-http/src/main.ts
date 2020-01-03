@@ -11,11 +11,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(
     session({
-      name:'server-session-id',
-      secret:'No sera de tomar un traguito',
-      resave:true,
-      saveUninitialized:true,
-      cookie:{secure:true},
+      name: 'server-session-id',
+      secret: 'No sera de tomar un traguito',
+      resave: true,
+      saveUninitialized: true,
+      cookie: {secure: false},
       store: new FileStore(),
       }
     )

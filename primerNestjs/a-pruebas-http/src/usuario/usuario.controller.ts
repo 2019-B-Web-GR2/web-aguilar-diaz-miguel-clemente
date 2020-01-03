@@ -78,41 +78,49 @@ export class UsuarioController {
   @Post()
   async crearUnUsuario(
     @Body() usuario: UsuarioEntity,
+    @Session() session,
   ): Promise<UsuarioEntity> {
-    const usuarioCreateDTO = new UsuarioCreateDto();
-    usuarioCreateDTO.nombre = usuario.nombre;
-    usuarioCreateDTO.cedula = usuario.cedula;
-    const errores = await validate(usuarioCreateDTO);
-    if (errores.length > 0) {
-      throw new BadRequestException('Error validando');
-    } else {
-      return this._usuarioService
-        .crearUno(
-          usuario,
-        );
+    if(session.usuario.roles[0]==='administrador'){
+      const usuarioCreateDTO = new UsuarioCreateDto();
+      usuarioCreateDTO.nombre = usuario.nombre;
+      usuarioCreateDTO.cedula = usuario.cedula;
+      const errores = await validate(usuarioCreateDTO);
+      if (errores.length > 0) {
+        throw new BadRequestException('Error validando');
+      } else {
+        return this._usuarioService
+          .crearUno(
+            usuario
+          );
+      }
     }
-
+    throw new BadRequestException('Debe ser administrador para crear un usuario nuevo');
   }
 
   @Put(':id')
   async actualizarUnUsuario(
     @Body() usuario: UsuarioEntity,
     @Param('id') id: string,
+    @Session() session
   ): Promise<UsuarioEntity> {
-    const usuarioUpdateDTO = new UsuarioUpdateDto();
-    usuarioUpdateDTO.nombre = usuario.nombre;
-    usuarioUpdateDTO.cedula = usuario.cedula;
-    usuarioUpdateDTO.id = +id;
-    const errores = await validate(usuarioUpdateDTO);
-    if (errores.length > 0) {
-      throw new BadRequestException('Error validando');
-    } else {
-      return this._usuarioService
-        .actualizarUno(
-          +id,
-          usuario,
-        );
+    if(session.usuario.roles==='administrador' && session.usuario.roles==='supervisor'){
+      const usuarioUpdateDTO = new UsuarioUpdateDto();
+      usuarioUpdateDTO.nombre = usuario.nombre;
+      usuarioUpdateDTO.cedula = usuario.cedula;
+      usuarioUpdateDTO.id = +id;
+      const errores = await validate(usuarioUpdateDTO);
+      if (errores.length > 0) {
+        throw new BadRequestException('Error validando');
+      } else {
+        return this._usuarioService
+          .actualizarUno(
+            +id,
+            usuario,
+          );
+      }
     }
+    throw new BadRequestException("No tiene permisos para realizar esta accion")
+
   }
 
   @Delete(':id')
@@ -131,6 +139,7 @@ export class UsuarioController {
     @Query('take') take?: string | number,
     @Query('where') where?: string,
     @Query('order') order?: string,
+
   ): Promise<UsuarioEntity[]> {
     if (order) {
       try {
