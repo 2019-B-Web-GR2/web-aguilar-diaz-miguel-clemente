@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Session } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res, Session } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { UsuarioEntity } from './usuario.entity';
 import { DeleteResult } from 'typeorm';
@@ -43,6 +43,17 @@ export class UsuarioController {
     throw new BadRequestException('no envia las credenciales')
   }
 
+  @Get('logout')
+  logout(
+    @Session() sesion,
+    @Req () req
+  ){
+    sesion.usuario=undefined;
+    req.session.destroy();
+    return sesion
+  }
+
+
   @Get('session')
   session(
     @Session()session
@@ -51,14 +62,37 @@ export class UsuarioController {
   }
 
 
+  @Get('ejemploejs')
+  ejemploejs(
+    @Res()res
+  ){
+    res.render('ejemplo',{
+      datos:{
+        nombre:'Dekim',
+      },
+    });
+  }
   @Get('hola')
-  hola(): string {
+  hola(
+    @Session() session
+  ): string {
+    let lista=function(session):string{
+      let contenido=``;
+      if(session.usuario){
+        contenido=`<ul>`;
+        session.usuario.roles.forEach((value)=>{
+          contenido+=`<li>${value}</li>`;
+        });
+        contenido+=`</ul>`;
+      }
+      return  contenido;
+    };
     return `
 <html>
 <head><title>Proyecto</title></head>
 <body>
-<h1> Mi primera pagina web</h1>
-
+<h1> Mi primera pagina web ${session.usuario?session.usuario.nombre:""}</h1>
+${lista(session)}
 </body>
 </html>
 `;
@@ -103,7 +137,7 @@ export class UsuarioController {
     @Param('id') id: string,
     @Session() session
   ): Promise<UsuarioEntity> {
-    if(session.usuario.roles==='administrador' && session.usuario.roles==='supervisor'){
+    if(session.usuario.roles==='administrador' || session.usuario.roles==='supervisor'){
       const usuarioUpdateDTO = new UsuarioUpdateDto();
       usuarioUpdateDTO.nombre = usuario.nombre;
       usuarioUpdateDTO.cedula = usuario.cedula;
@@ -135,50 +169,52 @@ export class UsuarioController {
 
   @Get()
   async buscar(
+    @Session() session,
     @Query('skip') skip?: string | number,
     @Query('take') take?: string | number,
     @Query('where') where?: string,
     @Query('order') order?: string,
-
   ): Promise<UsuarioEntity[]> {
-    if (order) {
-      try {
-        order = JSON.parse(order);
-      } catch (e) {
-        order = undefined;
+    if (session.usuario.roles[0] === 'administrador') {
+      if (order) {
+        try {
+          order = JSON.parse(order);
+        } catch (e) {
+          order = undefined;
+        }
       }
-    }
-    if (where) {
-      try {
-        where = JSON.parse(where);
-      } catch (e) {
-        where = undefined;
+      if (where) {
+        try {
+          where = JSON.parse(where);
+        } catch (e) {
+          where = undefined;
+        }
       }
+      if (skip) {
+        skip = +skip;
+        // const nuevoEsquema = Joi.object({
+        //     skip: Joi.number()
+        // });
+        // try {
+        //     const objetoValidado = await nuevoEsquema
+        //         .validateAsync({
+        //             skip: skip
+        //         });
+        //     console.log('objetoValidado', objetoValidado);
+        // } catch (error) {
+        //     console.error('Error',error);
+        // }
+      }
+      if (take) {
+        take = +take;
+      }
+      return this._usuarioService
+        .buscar(
+          where,
+          skip as number,
+          take as number,
+          order,
+        );
     }
-    if (skip) {
-      skip = +skip;
-      // const nuevoEsquema = Joi.object({
-      //     skip: Joi.number()
-      // });
-      // try {
-      //     const objetoValidado = await nuevoEsquema
-      //         .validateAsync({
-      //             skip: skip
-      //         });
-      //     console.log('objetoValidado', objetoValidado);
-      // } catch (error) {
-      //     console.error('Error',error);
-      // }
-    }
-    if (take) {
-      take = +take;
-    }
-    return this._usuarioService
-      .buscar(
-        where,
-        skip as number,
-        take as number,
-        order,
-      );
   }
 }
