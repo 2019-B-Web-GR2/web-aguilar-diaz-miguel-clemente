@@ -25,73 +25,90 @@ export class UsuarioController {
   ) {
     console.log(session);
     if (username === 'adrian' && password === '1234') {
-      session.usuario= {
-        nombre:'adrian',
-        userId:1,
-        roles:['administrador']
+      session.usuario = {
+        nombre: 'adrian',
+        userId: 1,
+        roles: ['administrador'],
       };
       return 'ok';
     }
     if (username === 'vicente' && password === '1234') {
-      session.usuario= {
-        nombre:'vicente',
-        userId:2,
-        roles:['supervisor']
+      session.usuario = {
+        nombre: 'vicente',
+        userId: 2,
+        roles: ['supervisor'],
       };
       return 'ok';
     }
-    throw new BadRequestException('no envia las credenciales')
+    throw new BadRequestException('no envia las credenciales');
   }
 
   @Get('logout')
   logout(
     @Session() sesion,
-    @Req () req
-  ){
-    sesion.usuario=undefined;
+    @Req() req,
+  ) {
+    sesion.usuario = undefined;
     req.session.destroy();
-    return sesion
+    return sesion;
   }
-
 
   @Get('session')
   session(
-    @Session()session
-  ){
+    @Session()session,
+  ) {
     return session;
   }
 
-
   @Get('ejemploejs')
   ejemploejs(
-    @Res()res
-  ){
-    res.render('ejemplo',{
-      datos:{
-        nombre:'Dekim',
+    @Res()res,
+  ) {
+    res.render('ejemplo', {
+      datos: {
+        nombre: 'Dekim',
+        suma: this.suma,
       },
     });
   }
+
+  @Get('ruta/mostrar-usuarios')
+  async rutaMostrarUsuarios(
+    @Res() res,
+  ) {
+    const usuarios = await this._usuarioService.buscar();
+    res.render('usuario/rutas/buscar-mostrar-usuario', {
+      datos: {
+        //usuarios: usuarios,
+        usuarios
+      },
+    });
+  }
+
+  suma(numUno, numDos) {
+    return numUno + numDos;
+  }
+
   @Get('hola')
   hola(
-    @Session() session
+    @Session() session,
   ): string {
-    let lista=function(session):string{
-      let contenido=``;
-      if(session.usuario){
-        contenido=`<ul>`;
-        session.usuario.roles.forEach((value)=>{
-          contenido+=`<li>${value}</li>`;
+    let lista = function(session): string {
+      let contenido = ``;
+      if (session.usuario) {
+        contenido = `<ul>`;
+        session.usuario.roles.forEach((value) => {
+          contenido += `<li>${value}</li>`;
         });
-        contenido+=`</ul>`;
+        contenido += `</ul>`;
       }
-      return  contenido;
+      return contenido;
     };
     return `
 <html>
 <head><title>Proyecto</title></head>
 <body>
-<h1> Mi primera pagina web ${session.usuario?session.usuario.nombre:""}</h1>
+<h1> Mi primera pagina web ${session.usuario ? session.usuario.nombre : ''}</h1>
 ${lista(session)}
 </body>
 </html>
@@ -114,7 +131,7 @@ ${lista(session)}
     @Body() usuario: UsuarioEntity,
     @Session() session,
   ): Promise<UsuarioEntity> {
-    if(session.usuario.roles[0]==='administrador'){
+    if (session.usuario.roles[0] === 'administrador') {
       const usuarioCreateDTO = new UsuarioCreateDto();
       usuarioCreateDTO.nombre = usuario.nombre;
       usuarioCreateDTO.cedula = usuario.cedula;
@@ -124,7 +141,7 @@ ${lista(session)}
       } else {
         return this._usuarioService
           .crearUno(
-            usuario
+            usuario,
           );
       }
     }
@@ -135,9 +152,9 @@ ${lista(session)}
   async actualizarUnUsuario(
     @Body() usuario: UsuarioEntity,
     @Param('id') id: string,
-    @Session() session
+    @Session() session,
   ): Promise<UsuarioEntity> {
-    if(session.usuario.roles==='administrador' || session.usuario.roles==='supervisor'){
+    if (session.usuario.roles === 'administrador' || session.usuario.roles === 'supervisor') {
       const usuarioUpdateDTO = new UsuarioUpdateDto();
       usuarioUpdateDTO.nombre = usuario.nombre;
       usuarioUpdateDTO.cedula = usuario.cedula;
@@ -153,7 +170,7 @@ ${lista(session)}
           );
       }
     }
-    throw new BadRequestException("No tiene permisos para realizar esta accion")
+    throw new BadRequestException('No tiene permisos para realizar esta accion');
 
   }
 

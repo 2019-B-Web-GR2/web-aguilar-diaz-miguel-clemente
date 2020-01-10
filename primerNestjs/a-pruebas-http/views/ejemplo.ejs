@@ -1,1 +1,21 @@
-<h1>hola <%=datos.nombre%></h1>
+<% const version = "1.00"; %>
+<% const total = 1 + 2; %>
+<% const add = {
+    nombre: 'Miguel',
+    esProfesor: true
+}; %>
+<% const arreglo = [1, 2, 3, 4, 5, 6, 7, 8, 9]; %>
+
+
+<h1>
+    hola <%= datos.nombre %>
+</h1>
+
+<p>Version: <%= version %></p>
+<p>Total: <%= total %></p>
+<p>Json: <%= add.nombre %></p>
+<p>suma: <%= datos.suma(1,2) %></p>
+<% arreglo.forEach(elemento => {%>
+<p>Numero <%=elemento%></p>
+<%})%>
+<%- include('componentes/numeros/mostrar-numeros',{urlBase:'https://upload.wikimedia.org/wikipedia/commons/8/8c/Escudo_de_la_Escuela_Polit%C3%A9cnica_Nacional.png',numero:''})%>
