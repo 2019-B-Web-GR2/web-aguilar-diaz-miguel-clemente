@@ -1,0 +1,77 @@
+/*
+Query selectors, busca una etiqueta y la modifica
+existen por
+id -> #
+clase -> .nombreclase
+etiqueta -> nombre de la etiqueta
+
+querySelector{
+propiedadesCSS:valoresCSS;
+propiedadesdosCSS: valorDos;
+}
+ */
+
+#titulo{
+    background-color: red;
+}
+.rojo{
+    background-color: blue;
+}
+.tomate{
+    background-color: orange;
+}
+h1{
+    background-color: green;
+}
+
+.web{
+    background-color: blue;
+    color: white;
+}
+
+@media (max-width: 992px) {
+    .web{
+        background-color: black;
+        color: white;
+    }
+}
+
+@media (max-width: 560px) {
+    .web{
+        background-color: white;
+        color: black;
+    }
+}
+
+/*animaciones*/
+
+.animacionWeb{
+    background-color: black;
+    color: white;
+    animation-name: rojo-amarillo;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+}
+@keyframes rojo-amarillo {
+    0%{
+        background-color: blue;
+        color: white;
+        font-size: 30px;
+    }
+    50%{
+        background-color: cornflowerblue;
+        color: white;
+        font-size: 35px;
+    }
+    100%{
+        background-color: blue;
+        color: white;
+        font-size: 30px;
+    }
+
+}
+
+.transform{
+    transform: rotate(20deg);
+}
+

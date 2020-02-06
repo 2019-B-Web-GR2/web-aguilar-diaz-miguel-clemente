@@ -1,40 +1,41 @@
 <%- include('../compartido/cabecera')%>
 <div class="container">
-    <h1>Ingresa tus credenciales</h1>
+    <h1>Login</h1>
+    <p>Ingresa tus credenciales</p>
 
     <form action="/usuario/login"
           method="POST"
     >
         <div class="form-group">
-            <label for="nombreID">Nombre</label>
-            <input id="nombreID"
+            <label for="usernameID">Username</label>
+            <input id="usernameID"
                    type="text"
                    name="username"
-                   placeholder="Ej: Adrian Eguez"
-                   title="Ingresar nombre de usuario"
+                   placeholder="Ej: adrian.eguez"
+                   title="Ingresar su username"
                    class="form-control">
-            <small id="nombreIDHelp"
+            <small id="usernameIDHelp"
                    class="form-text text-muted">
-                Ingresa un nombre mayor a 3 caracteres y menor a 10.
+                Ingresa tu nombre de usuario válido.
             </small>
         </div>
         <div class="form-group">
-            <label for="cedulaID">Cedula</label>
-            <input id="cedulaID"
+            <label for="passwordID">Password</label>
+            <input id="passwordID"
                    type="password"
                    name="password"
-                   placeholder="Ej: **********"
-                   title="Ingresar la cedula del usuario"
+                   placeholder="Ej: *********"
+                   title="Ingresar el password del usuario"
                    class="form-control">
             <small id="cedulaIDHelp"
                    class="form-text text-muted">
-                Ingresar una contrasena válida.
+                Ingresa tu password.
             </small>
         </div>
         <button type="submit"
                 class="btn btn-success"
         >
-            Log in
+            Login
         </button>
         <button type="reset"
                 class="btn btn-secondary"

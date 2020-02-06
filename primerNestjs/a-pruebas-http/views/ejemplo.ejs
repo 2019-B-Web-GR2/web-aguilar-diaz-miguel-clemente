@@ -1,21 +1,40 @@
-<% const version = "1.00"; %>
+<% const version = "1.0.0"; %>
 <% const total = 1 + 2; %>
-<% const add = {
-    nombre: 'Miguel',
-    esProfesor: true
+<% const adrian = {
+    nombre: 'Adrian'
 }; %>
-<% const arreglo = [1, 2, 3, 4, 5, 6, 7, 8, 9]; %>
+<% const arregloNumeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; %>
+<% const urlBase = "https://images.mediotiempo.com/"%>
+<% function anadirAnio(numero) {
+    return '2020-' + numero
+} %>
+<!-- INICIO ITERAR -->
+<h1>JOI :<%= datos.joi %></h1>
 
+<% arregloNumeros.forEach( (numero)=> { %>
 
+    <!-- COMPONENTE MOSTRAR NUMERO -->
+    <%- include('componentes/numeros/mostrar-numero',
+    {
+        anadirAnio:anadirAnio,
+        numero:numero,
+        urlBase:urlBase
+    }); %>
+
+<% }); %>
+<!-- FIN ITERAR -->
+
+<% if(adrian.esProfesor){%>
+    <h1>Bienvenido profe <%= adrian.nombre %></h1>
+    <p>Suma:<%= datos.suma(2,3)%></p>
+<% } else {%>
+    <h1>Bienvenido estudiante</h1>
+    <p>Suma:<%= datos.suma(2,3)%></p>
+<% }%>
 <h1>
-    hola <%= datos.nombre %>
+    HOLAAAA <%= datos.nombre %>
 </h1>
-
 <p>Version: <%= version %></p>
 <p>Total: <%= total %></p>
-<p>Json: <%= add.nombre %></p>
-<p>suma: <%= datos.suma(1,2) %></p>
-<% arreglo.forEach(elemento => {%>
-<p>Numero <%=elemento%></p>
-<%})%>
-<%- include('componentes/numeros/mostrar-numeros',{urlBase:'https://upload.wikimedia.org/wikipedia/commons/8/8c/Escudo_de_la_Escuela_Polit%C3%A9cnica_Nacional.png',numero:''})%>
+<p>Arreglo: <%= arregloNumeros %></p>
+<p>Objeto: <%= adrian.nombre %></p>

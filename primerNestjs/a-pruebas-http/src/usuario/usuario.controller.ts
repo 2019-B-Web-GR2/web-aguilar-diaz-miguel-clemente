@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import {UsuarioService} from './usuario.service';
 import {UsuarioEntity} from './usuario.entity';
-import {DeleteResult} from 'typeorm';
+import {DeleteResult, Like} from 'typeorm';
 import * as Joi from '@hapi/joi';
 import {UsuarioCreateDto} from './usuario.create-dto';
 import {validate} from 'class-validator';
@@ -31,51 +31,81 @@ export class UsuarioController {
 
     @Get('ruta/mostrar-usuarios')
     async rutaMostrarUsuarios(
-      @Query('usuarioC') usuarioC:string,
+        @Query('mensaje') mensaje: string,
+        @Query('error') error: string,
+        @Query('consultaUsuario') consultaUsuario: string,
         @Res() res,
     ) {
-        const usuarios = await this._usuarioService.buscar();
+        let consultaServicio;
+        if (consultaUsuario) {
+            consultaServicio = [
+                {
+                    nombre: Like('%' + consultaUsuario + '%'),
+                },
+                {
+                    cedula: Like('%' + consultaUsuario + '%'),
+                },
+            ];
+        }
+        const usuarios = await this._usuarioService.buscar(consultaServicio);
         res.render(
             'usuario/rutas/buscar-mostrar-usuario',
             {
                 datos: {
                     // usuarios:usuarios -> nueva sintaxis,
+                    mensaje,
                     usuarios,
-                    usuarioC
+                    error,
                 },
             },
         );
     }
 
     @Get('ruta/crear-usuario')
-      rutaCrearUsuario(
-      @Query('error') error:string,
+    rutaCrearUsuario(
+        @Query('error') error: string,
         @Res() res,
     ) {
         res.render(
             'usuario/rutas/crear-usuario',
             {
-                error
+                datos: {
+                    error,
+                },
             },
         );
     }
 
-    @Get('ruta/editar-usuario')
+    @Get('ruta/editar-usuario/:idUsuario')
     async rutaEditarUsuario(
-      @Query('error') error:string,
-      @Query('idUsuario') idUsuario:string,
-      @Res() res,
+        @Query('error') error: string,
+        @Param('idUsuario') idUsuario: string,
+        @Res() res,
     ) {
-        const consulta={
-            where: idUsuario
+        const consulta = {
+            id: idUsuario,
         };
-        const usuario= await this._usuarioService.buscar(consulta);
-        res.render(
-          'usuario/rutas/crear-usuario',
-          {
-              error,
-          },
-        );
+        try {
+            const arregloUsuarios = await this._usuarioService.buscar(consulta);
+            if (arregloUsuarios.length > 0) {
+                res.render(
+                    'usuario/rutas/crear-usuario',
+                    {
+                        datos: {error, usuario: arregloUsuarios[0]},
+                    },
+                );
+            } else {
+                res.redirect(
+                    '/usuario/ruta/mostrar-usuarios?error=No existe ese usuario',
+                );
+            }
+        } catch (error) {
+            console.log(error);
+            res.redirect(
+                '/usuario/ruta/buscar-mostrar-usuarios?error=Error editando usuario',
+            );
+        }
+
     }
 
     @Get('ejemploejs')
@@ -182,50 +212,61 @@ export class UsuarioController {
     @Post()
     async crearUnUsuario(
         @Body() usuario: UsuarioEntity,
-        @Res () res,
-    ):Promise<void> {
+        @Res() res,
+    ): Promise<void> {
         const usuarioCreateDTO = new UsuarioCreateDto();
         usuarioCreateDTO.nombre = usuario.nombre;
         usuarioCreateDTO.cedula = usuario.cedula;
         const errores = await validate(usuarioCreateDTO);
         if (errores.length > 0) {
-            res.redirect('/usuario/ruta/crear-usuario?error=Error validando')
-            //throw new BadRequestException('Error validando');
-
+            res.redirect(
+                '/usuario/ruta/crear-usuario?error=Error validando',
+            );
+            // throw new BadRequestException('Error validando');
         } else {
-            try{
+            try {
                 await this._usuarioService
-                  .crearUno(
-                    usuario,
-                  );
-                res.redirect('/usuario/ruta/mostrar-usuarios?usuarioC=Usuario creado correctamente');
-            }catch (e) {
-                console.error(e.toString());
-                res.redirect('/usuario/ruta/crear-usuario?error=Error validando');
+                    .crearUno(
+                        usuario,
+                    );
+                res.redirect(
+                    '/usuario/ruta/mostrar-usuarios?mensaje=El usuario se creo correctamente',
+                );
+            } catch (error) {
+                console.error(error);
+                res.redirect(
+                    '/usuario/ruta/crear-usuario?error=Error del servidor',
+                );
             }
 
         }
 
     }
 
-    @Put(':id')
+    @Post(':id')
     async actualizarUnUsuario(
         @Body() usuario: UsuarioEntity,
         @Param('id') id: string,
-    ): Promise<UsuarioEntity> {
+        @Res() res,
+    ): Promise<void> {
         const usuarioUpdateDTO = new UsuarioUpdateDto();
         usuarioUpdateDTO.nombre = usuario.nombre;
         usuarioUpdateDTO.cedula = usuario.cedula;
         usuarioUpdateDTO.id = +id;
         const errores = await validate(usuarioUpdateDTO);
         if (errores.length > 0) {
-            throw new BadRequestException('Error validando');
+            res.redirect(
+                '/usuario/ruta/editar-usuario/' + id + '?error=Usuario no validado',
+            );
         } else {
-            return this._usuarioService
+            await this._usuarioService
                 .actualizarUno(
                     +id,
                     usuario,
                 );
+            res.redirect(
+                '/usuario/ruta/mostrar-usuarios?mensaje=El usuario ' + usuario.nombre + ' actualizado',
+            );
         }
 
     }
@@ -243,19 +284,18 @@ export class UsuarioController {
     @Post(':id')
     async eliminarUnoPost(
         @Param('id') id: string,
-        @Res()res,
+        @Res() res,
     ): Promise<void> {
         try {
             await this._usuarioService
-              .borrarUno(
-                +id,
-              );
+                .borrarUno(
+                    +id,
+                );
             res.redirect(`/usuario/ruta/mostrar-usuarios?mensaje=Usuario ID: ${id} eliminado`);
-        }catch (e) {
-            console.error(e)
-            res.redirect('/usuario/ruta/mostrar-usuarios?error=Error');
+        } catch (error) {
+            console.error(error);
+            res.redirect('/usuario/ruta/mostrar-usuarios?error=Error del servidor');
         }
-
     }
 
     @Get()

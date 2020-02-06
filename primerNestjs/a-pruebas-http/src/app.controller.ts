@@ -1,238 +1,236 @@
 import {
-  BadRequestException, Body,
-  Controller,
-  Get, Headers,
-  HttpCode,
-  InternalServerErrorException, Param,
-  Post,
-  Query, Res,
+    BadRequestException, Body,
+    Controller,
+    Get, Headers,
+    HttpCode,
+    InternalServerErrorException, Param,
+    Post,
+    Query, Res,
 } from '@nestjs/common';
-import { AppService } from './app.service';
+import {AppService} from './app.service';
 
 @Controller('pepito') // segmento url -> "/"
 export class AppController {
-  constructor(private readonly appService: AppService) {
-  } // http://localhost:4000/pepito/ GET
-  @Get() // -> url "hola-mundo"
-  getHello(): string {
-    return this.appService.getHello();
-  }
-
-  @Get ('login')
-  login(
-    @Res () res,
-  ){
-    res.render('login/login')
-  }
-
-  // http://localhost:4000/pepito/ POST
-  @HttpCode(200)
-  @Post('esPar')
-  adiosMundo(): string {
-    const segundos = this.obtenerSegundos();
-    if (segundos % 2 === 0) {
-      return 'Adios mundo!';
-    } else {
-      throw new InternalServerErrorException(
-        'Es  impar',
-      );
-    }
-
-  }
-
-  private obtenerSegundos(): number {
-    return new Date().getSeconds();
-  }
-
-  @Get('bienvenida')
-  public bienvenida(
-    @Query() parametrosDeConsulta: ObjetoBienvenida,
-    @Query('nombre') nombreUsuario: string,
-    @Query('numero') numeroUsuario: string,
-    @Query('casado') casadoUsuario: string,
-  ): string {
-    console.log(parametrosDeConsulta);
-    console.log(typeof numeroUsuario);
-    // template strings \\ `Mensaje ${variable}`
-    return `Mensaje ${parametrosDeConsulta.nombre} Numero: ${parametrosDeConsulta.numero}`;
-  }
-
-  @Get('inscripcion-curso/:idCurso/:cedula') //  "/:nombreParametro"
-  public inscripcionCurso(
-    @Param() parametrosDeRuta: ObjetoInscripcion,
-    @Param('idCurso') idCurso: string,
-    @Param('cedula') cedula: string,
-  ): string {
-    console.log(parametrosDeRuta);
-    return `Te inscribiste al curso: ${idCurso}\n ${cedula}`;
-  }
-
-  @Post('almorzar')
-  @HttpCode(200)
-  public almorzar(
-    @Body() parametrosDeCuerpo,
-    @Body('id') id: number, // Objeto :D Arreglo D:
-  ): string {
-    console.log(parametrosDeCuerpo);
-    return `Te inscribiste al curso: ${parametrosDeCuerpo}`;
-  }
-
-  @Get('obtener-cabeceras')
-  obtenerCabeceras(
-    @Headers() cabeceras,
-    @Headers('numerouno') numeroUno: string,
-  ) {
-    console.log(cabeceras);
-    return `Las cabeceras son: ${numeroUno}`;
-  }
-}
-
-interface ObjetoInscripcion {
-  idCurso: string;
-  cedula: string;
-}
-
-interface ObjetoBienvenida {
-  nombre?: string;
-  numero?: string;
-  casado?: string;
-}
-
-/*
-import {Body, Controller, Headers, Get, HttpCode, Param, Post, Query} from '@nestjs/common';
-import {AppService} from './app.service';
-
-@Controller('pepito') //recibe el segmento de la url -> '/'
-export class AppController {
     constructor(private readonly appService: AppService) {
+    } // http://localhost:4000/pepito/ GET
+
+    @Get('ciudades/:idCiudad')
+    ciudades(
+      @Param('idCiudad') idCiudad:string
+    ){
+        const ciudadPichincha = [
+            {id: 1, nombre: 'Quito'}
+        ];
+        const ciudadGuayas = [
+            {id: 2, nombre: 'Guayaquil'}
+        ];
+        if(idCiudad==="1"){
+            return ciudadPichincha;
+        }else {
+            return ciudadGuayas;
+        }
     }
 
-    //http:/localhost:4000/pepito/hola-mundo
-    @Get('hola-mundo')
+    @Get('login')
+    login(
+        @Res() res,
+    ) {
+        res.render('login/login');
+    }
+
+    @Get() // -> url "hola-mundo"
     getHello(): string {
         return this.appService.getHello();
     }
 
-    @HttpCode(200) //si sale bien
-    @Post()
-    adiosMundo():string{
-        return 'Adios Mundo';
-        //trow new Internal....Exeption('message'); //tambien sirve como el return pero para  errores
+    // http://localhost:4000/pepito/ POST
+    @HttpCode(200)
+    @Post('esPar')
+    adiosMundo(): string {
+        const segundos = this.obtenerSegundos();
+        if (segundos % 2 === 0) {
+            return 'Adios mundo!';
+        } else {
+            throw new InternalServerErrorException(
+                'Es  impar',
+            );
+        }
+
+    }
+
+    private obtenerSegundos(): number {
+        return new Date().getSeconds();
     }
 
     @Get('bienvenida')
     public bienvenida(
-        @Query() parametrosDeConsulta:any,
-        @Query('nombre') nombre:string,
-        @Query('casado') bandera:string,
-        @Query('numero') number:string
-    ):string{
+        @Query() parametrosDeConsulta: ObjetoBienvenida,
+        @Query('nombre') nombreUsuario: string,
+        @Query('numero') numeroUsuario: string,
+        @Query('casado') casadoUsuario: string,
+    ): string {
         console.log(parametrosDeConsulta);
-        //template strings
-        return `Mensaje ${parametrosDeConsulta.nombre} ${typeof parametrosDeConsulta}`
+        console.log(typeof numeroUsuario);
+        // template strings \\ `Mensaje ${variable}`
+        return `Mensaje ${parametrosDeConsulta.nombre} Numero: ${parametrosDeConsulta.numero}`;
     }
 
-    @Get('inscripcion-curso/:idCurso/:cedula') // /:nombreParametro
+    @Get('inscripcion-curso/:idCurso/:cedula') //  "/:nombreParametro"
     public inscripcionCurso(
         @Param() parametrosDeRuta: ObjetoInscripcion,
-        @Param('idCurso') idCurso: ObjetoInscripcion,
-        @Param('cedula') cedula: ObjetoInscripcion
-    ):string{
+        @Param('idCurso') idCurso: string,
+        @Param('cedula') cedula: string,
+    ): string {
         console.log(parametrosDeRuta);
-        //template strings
-        return `Te inscribiste al curso ${idCurso} \n${cedula}`
+        return `Te inscribiste al curso: ${idCurso}\n ${cedula}`;
     }
 
-    @Post('almorzar') // /:nombreParametro
+    @Post('almorzar')
     @HttpCode(200)
     public almorzar(
         @Body() parametrosDeCuerpo,
-        @Body('nombre') nombre:string //solo para un objeto sirve, para lo otro no
-    ):string{
+        @Body('id') id: number, // Objeto :D Arreglo D:
+    ): string {
         console.log(parametrosDeCuerpo);
-        //template strings
-        return `Te inscribiste al curso ${parametrosDeCuerpo}`;
+        return `Te inscribiste al curso: ${parametrosDeCuerpo}`;
     }
 
     @Get('obtener-cabeceras')
     obtenerCabeceras(
-        @Headers() cabeceras
-    ){
+        @Headers() cabeceras,
+        @Headers('numerouno') numeroUno: string,
+    ) {
         console.log(cabeceras);
-        return `${cabeceras}`;
+        return `Las cabeceras son: ${numeroUno}`;
     }
-}
-
-interface ObjetoBienvenida {
-    nombre?:string;
-    numero?:string;
-    casado?:string;
 }
 
 interface ObjetoInscripcion {
     idCurso: string;
     cedula: string;
 }
-// TypeScript
-var nombre: string = "Miguel";  //no usar var
-let apellido = "Aguilar";       // variable mutable se pueden reasignar
-const cedula = "172534.....";   //variable no mutable no se puede cambiar
 
-// existen tres tipos de datos primitivos, string, boolean y number
-//tambien se puede usar null, pero si en la variable no se asigna ningun valor retorna undefined
-
-//== compara los valores, === compara el valor y el tipo de dato
-if (apellido === "") {
-
+interface ObjetoBienvenida {
+    nombre?: string;
+    numero?: string;
+    casado?: string;
 }
 
-class Usuario {
+/*
+// Typescript
+// var nombre:string = "Adrian";
+let apellido: string = "Eguez"; // Mutable
+const cedula: string = "1718..."; // Inmutable OK
+apellido = "Sarzosa"; // RE ASIGNANDO "=" Mutable
+// cedula = "18"; // :( INMUTABLE - NO RE ASIGNAR
+const casado: boolean = false; // boolean
+const edad: number = 30; // number
+const sueldo: number = 12.12; // number
+let hijos = 0; // null
+hijos = null;
+let ojos; // undefined
 
-    constructor(
-        public nombre: string, //crear una propiedad llamada nombre y recibir un parametro y asignarlo a la propiedad nombre
-        public apellido: string
-    ) {
-    }
-
-    private lola(): void {
-
-    }
+// TRUTY - FALSY
+if (0) {
+    console.log('Truty');
+} else {
+    console.log('Falsy'); // FALSY
 }
+if (-1) {
+    console.log('Truty'); // Truty
+} else {
+    console.log('Falsy');
+}
+if (1) {
+    console.log('Truty'); // Truty
+} else {
+    console.log('Falsy');
+}
+if ("") {
+    console.log('Truty');
+} else {
+    console.log('Falsy'); // Falsy
+}
+if ("abc") {
+    console.log('Truty'); // Truty
+} else {
+    console.log('Falsy');
+}
+
+if ([]) {
+    console.log('Truty'); // truty
+} else {
+    console.log('Falsy');
+}
+
+if ({}) {
+    console.log('Truty'); // truty
+} else {
+    console.log('Falsy');
+}
+
+// class Usuario {
+//     public cedula: string = "1871233";
+//     cedula2 = "1871233"; // public : string
+//     constructor(
+//         public nombre:string, // Crear una Propiedad
+//                              // Llamada nombre y
+//                              // Recibir un parametro
+//                              // Y asignarlo a la propiedad
+//                              // nombre
+//         public apellido:string
+//     ){
+//
+//     }
+//
+//
+//     private holaMundo(): void {
+//         console.log("Hola")
+//     }
+//
+//     holaMundo2() {
+//         console.log("Hola")
+//     }
+// }
+// const adrian = new Usuario("Nombre");
 
 class Usuario2 {
     constructor(
-        public nombre: string,
-        public apellido?: string
+        public nombre: string, // parametro requerido
+        public apellido?: string, // parametro opcional
     ) {
     }
-
 }
+
+const adrian = new Usuario2("Adrian");
+const vicente = new Usuario2("Vicente", "Eguez");
 
 class Empleado extends Usuario2 {
     constructor(
-        public nombre: string,
-        public numeroContrato: String,
-        public apellido?: string
+        nombre: string,
+        public numeroContrato: string,
+        apellido?: string,
     ) {
-        super(nombre, apellido)
+        super(nombre, apellido);
     }
 }
 
-var user = new Usuario2('miguel');
+const empleadoAdrian = new Empleado("Adrian",
+    "1234");
 
 interface Pelota {
     diametro: number;
     color?: string;
 }
 
-const balon: Pelota = { //tipado de datos
-    diametro: 10
+const balonFutbol: Pelota = {
+    diametro: 1,
+    color: "amazul",
+    // peso: 12,
 };
 
-interface Pokemon {
-    id: number;
-    nombre: string;
-    entrenador: Entrenador | number; // entrenador es una foreign key
+class Juego implements Pelota {
+    diametro: number;
 }
 
 interface Entrenador {
@@ -240,16 +238,23 @@ interface Entrenador {
     nombre: string;
 }
 
+interface Pokemon {
+    id: number;
+    nombre: string;
+    entrenador: Entrenador | number; // Foreign Key
+}
+
 const ash: Entrenador = {
     id: 1,
-    nombre: 'ash'
+    nombre: 'Ash',
 };
-
 const pikachu: Pokemon = {
     id: 1,
-    nombre: 'pikachu',
-    entrenador: ash
+    nombre: 'Pikachu',
+    entrenador: 1
 };
 
-const suma = pikachu.id + (pikachu.entrenador as number);
+const suma = pikachu.entrenador as number + pikachu.id;
+const suma2 = <number>pikachu.entrenador + pikachu.id;
+
 */
